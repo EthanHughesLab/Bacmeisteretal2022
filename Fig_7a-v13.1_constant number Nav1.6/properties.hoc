@@ -1,0 +1,21 @@
+for i=0,numnodes-1{						//define node length and diam, "-1" b/c numbering starts at 0
+	access node[i]
+	diam=0.64
+	insert pas 									//insert passive conductance
+	insert na16 								//insert nav1.6 channel
+	insert kv 									//insert kv channel
+	gbar_na16=nav16_g					//maximum Nav1.6 conductance, defined above
+	gbar_kv=kv_g							//maximum Kv conductance, defined above
+	e_na16=na16_e							//reversal potential nav1.6
+	e_kv=kv_e									//reversal potential k
+	c=node_C
+	g_pas=node_gpas						//passive conductance = defined conductance above
+}
+
+for i=0,numnodes-2{						//because numbering starts at 0, you have 1 less internode than node
+	access internode[i]					//makes every internode the same; will later modify to make internodes different lengths
+	diam=0.901 									//myelin + axon; bigger size than at node
+	insert pas									//insert passive conductance
+	g_pas=internode_gpas				//passive conductance = defined conductance above
+	c=internode_C
+}

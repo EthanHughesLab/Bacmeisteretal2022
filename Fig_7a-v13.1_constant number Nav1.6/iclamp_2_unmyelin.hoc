@@ -1,0 +1,59 @@
+//----mod files from https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=123897&file=/HuEtAl2009/mechanism/na16.mod#tabs-2
+load_file("iclamp.ses")
+//global_ra = 70						//ra=axial resistance
+//set_ra()												//ra=axial resistance
+
+objref vec, nc, nil						//create new objects: vector, network connection
+
+objref ap_list, nc_list, v_list		//create lists for code below
+ap_list = new List ()
+nc_list = new List ()
+v_list = new List ()
+
+for i=0,numnodes-2{						//record from each node
+	access node[i]							//access each node
+	vec = new Vector ()
+	nc = new NetCon(&v(.5), nil)
+	nc.threshold = 0
+	nc.record(vec)
+	ap_list.append (vec)				//ap_list will have all of the times when voltage was above 0)
+	nc_list.append (nc)					//nc_list will show the location of the netcon
+	vec = new Vector ()
+	vec.record(&v(.5))					//vector will be the voltage at the middle of each node
+	v_list.append (vec)					//v_list will list these voltages
+	}
+
+objref ap_file,v_file					//creates file, file names
+ap_file = new File()
+ap_file.wopen("ap_file.txt")
+v_file = new File()
+v_file.wopen("v_file.txt")
+
+proc node_length() {
+	access node[0]							//makes node 0 the root (reference point for distance measurements)?
+	distance()									//tells NEURON we want to record distance from node 0
+	for i=30,40{
+		access node[i]
+		time = 0
+
+			ap_file.printf("%g	%g	%g	%g	%g	%g",distance(0.5), ap_list.o(i).size(), node[i].L, node[i].g_pas, node[i].gbar_na16, i) //%g makes a new column' distance is +0.5 so we remember we recorded from the center of the node; o is the object list, prints either that we recorded (1) or did not (0) in ap_list; time is the value recorded in ap_list
+			for time=0,11 {
+				if(time<ap_list.o(i).size()){
+					ap_file.printf("	%g",ap_list.o(i).x[time])
+				}else{
+				ap_file.printf("	-1")
+				}
+			}
+			ap_file.printf("\n")
+			if (ap_list.o(i).size() > 0) {time = ap_list.o(i).x[0]}
+				for time=0,v_list.o(0).size()-1 {
+				v_file.printf("%g	",v_list.o(i).x[time])
+				}
+			v_file.printf("\n")
+			}
+	}
+
+proc close_file() {
+ap_file.close()
+v_file.close()
+}

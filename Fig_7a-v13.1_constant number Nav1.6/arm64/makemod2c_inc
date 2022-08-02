@@ -1,0 +1,33 @@
+
+./km.c: ../km.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd ".."; MODLUNIT=$(NRNUNITS) $(NOCMODL) km.mod -o "/Volumes/Internodes/Fig.4_NEURON for paper/121120/Fig_7a-v13.1_constant number Nav1.6/arm64")
+
+./km.o: ./km.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I".." $(INCLUDES) -fPIC -c $< -o $@
+
+./kv.c: ../kv.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd ".."; MODLUNIT=$(NRNUNITS) $(NOCMODL) kv.mod -o "/Volumes/Internodes/Fig.4_NEURON for paper/121120/Fig_7a-v13.1_constant number Nav1.6/arm64")
+
+./kv.o: ./kv.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I".." $(INCLUDES) -fPIC -c $< -o $@
+
+./nav12.c: ../nav12.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd ".."; MODLUNIT=$(NRNUNITS) $(NOCMODL) nav12.mod -o "/Volumes/Internodes/Fig.4_NEURON for paper/121120/Fig_7a-v13.1_constant number Nav1.6/arm64")
+
+./nav12.o: ./nav12.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I".." $(INCLUDES) -fPIC -c $< -o $@
+
+./nav16.c: ../nav16.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd ".."; MODLUNIT=$(NRNUNITS) $(NOCMODL) nav16.mod -o "/Volumes/Internodes/Fig.4_NEURON for paper/121120/Fig_7a-v13.1_constant number Nav1.6/arm64")
+
+./nav16.o: ./nav16.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I".." $(INCLUDES) -fPIC -c $< -o $@
+

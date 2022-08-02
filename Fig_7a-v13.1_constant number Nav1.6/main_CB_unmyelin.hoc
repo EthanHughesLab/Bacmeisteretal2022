@@ -1,0 +1,99 @@
+load_file("nrngui.hoc")
+numnodes=50 //how many nodes you want in your model
+node_gpas=0.08 //conductance at node, S/cm^2
+node_C=0.9 // in uF/cm^2 //capacitance
+internode_gpas=0.0001 //conductance in internode S/cm^2
+internode_C=0.13 // capacitance, in uF/cm^2, Gentet et al, Attwell
+Rm=25000
+Rm_low=2e3
+Rm_norm=Rm/Rm_low
+Rmy=1e5
+Rmy_low=20000
+Rmy_norm=Rmy/Rmy_low
+gratio=0.7
+smy=1/gratio
+gpas_node=1/(Rm_norm*Rm_low)
+gpas_internode=1/((Rm_norm*Rm_low)+((Rmy_norm*Rmy_low)/smy))
+Cm=1
+Cm_low=0.5
+Cm_norm=Cm/Cm_low
+Cmy=0.05
+Cmy_low=0.005
+Cmy_norm=Cmy/Cmy_low
+cm_node=(Cm_norm*Cm_low)/(Cm_norm*Cm_low)
+cm_internode=(Cm_norm*Cm_low*Cmy_norm*Cmy_low*smy)/((Cm_norm*Cm_low)+(Cmy_norm*Cmy_low*smy))
+
+//maximum conductance
+nav16_g=50000 		//max conductance of Nav1.6 channel; channel mod files have gbar in pS/um^2--should be 12 mS/mm^2 (Madrid et al, 2003 https://www.cell.com/biophysj/pdf/S0006-3495(03)75141-8.pdf)
+nav12_g=0.1		//max conductance of Nav1.2 channel
+kv_g=3000				//max conductance of Kv channel
+
+//reversal potential, in mV
+na16_e= 55
+na12_e= 55
+kv_e= -90
+pas_e= -66
+
+create node[numnodes],unmyelin[numnodes-1],internode[numnodes-1] 		//50 nodes, 49 internodes (so you can begin and end with a node)
+for i=0,numnodes-2{															//connect nodes to internodes, creates node-internode-node pattern
+	connect unmyelin[i](1),node[i](0)						//connect end of node to beginning of internode
+	connect node[i](1),internode[i](0)					//connect end of internode to the following node
+	connect internode[i](1),unmyelin[i+1](0)
+}
+for i=0,numnodes-1{						//define node length and diam, "-1" b/c numbering starts at 0
+	access node[i]
+	L=0.9
+	diam=0.72
+	insert pas 									//insert passive conductance
+	insert na16 								//insert nav1.6 channel
+	insert kv 									//insert kv channel
+	gbar_na16=nav16_g					//maximum Nav1.6 conductance, defined above
+	gbar_kv=kv_g							//maximum Kv conductance, defined above
+	e_na16=na16_e							//reversal potential nav1.6
+	e_kv=kv_e									//reversal potential kv
+	e_pas=pas_e								//reversal potential, leak
+	cm=node_C
+	g_pas=node_gpas						//passive conductance = defined conductance above
+	nseg=5
+	Ra=70
+}
+
+for i=0,numnodes-2{						//define node length and diam, "-1" b/c numbering starts at 0
+	access unmyelin[i]
+	L=0.1
+	diam=0.72
+	insert pas 									//insert passive conductance
+	insert na16 								//insert nav1.6 channel
+	insert kv 									//insert kv channel
+	gbar_na16=nav16_g					//maximum Nav1.6 conductance, defined above
+	gbar_kv=kv_g							//maximum Kv conductance, defined above
+	e_na16=na16_e							//reversal potential nav1.6
+	e_kv=kv_e									//reversal potential kv
+	e_pas=pas_e								//reversal potential, leak
+	cm=node_C
+	g_pas=node_gpas						//passive conductance = defined conductance above
+	nseg=5
+	Ra=70
+}
+
+for i=0,numnodes-2{						//"-2" because numbering starts at 0 and you have 49 internodes
+	access internode[i]					//makes every internode the same
+	L=60
+	diam=0.902 									//axon bigger underneath myelin
+	insert pas									//insert passive conductance
+	g_pas=gpas_internode						//passive conductance = defined conductance above
+	e_pas=pas_e
+	cm=cm_internode
+	nseg=5
+	Ra=70
+}
+
+xpanel("control")
+	xvalue("Num_nodes", "numnodes" , 1, "update()")
+	xvalue("Na reversal potential", "na16_e" , 1, "update()")
+	xvalue("Nav1.6 g", "nav16_g" , 1, "update()")
+	xvalue("Kv g", "kv_g" , 1, "update()")
+	xvalue("Node pas", "node_gpas" , 1, "update()")
+	xvalue("Node C", "node_C" , 1, "update()")
+	xvalue("Internode C", "internode_C" , 1, "update()")
+xpanel(500,50)

@@ -1,0 +1,13 @@
+#!/bin/sh
+if test "x${NRNHOME}" = "x" ; then
+	NRNHOME="/Applications/NEURON-7.6/nrn"
+fi
+if test "x${NRNBIN}" = "x" ; then
+	NRNBIN="/Applications/NEURON-7.6/nrn/x86_64/bin/"
+fi
+if test "" = "yes" ; then
+	NRNIV="${NRNBIN}nrniv.app/Contents/MacOS/nrniv"
+else
+	NRNIV="${NRNBIN}nrniv"
+fi
+"${NRNIV}" -dll "/Users/claramaria/Desktop/NEURON_for-paper/archive/100920 copy/Fig_7a-v13.1_constant number Nav1.6/x86_64/.libs/libnrnmech.so" "$@"
